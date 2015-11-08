@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rootdir="/home/matthew/http/rootdir"
+rootdir="./rootdir"
 
 set -f
 
