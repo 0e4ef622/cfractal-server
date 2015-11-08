@@ -1,0 +1,3 @@
+[submodule "cfractal"]
+	path = cfractal
+	url = https://github.com/keyboardfire/cfractal.git

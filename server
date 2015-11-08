@@ -1,0 +1,140 @@
+#!/bin/bash
+
+rootdir="/home/matthew/http/rootdir"
+
+set -f
+
+filetype() {
+    b="$1"
+    a=$(stat -c %F "$b")
+    while [ "$a" == "symbolic link" ]; do
+        b=$(readlink "$b")
+        a=$(stat -c %F "$b")
+    done
+    echo $a
+}
+
+
+respond() {
+    file="$rootdir$1";
+
+    if [ "$1" == "/generate" ]; then
+        fracargs="";
+        if expr "$2" : ".*v1=on" &> /dev/null; then fracargs="$fracargs 0"; fi
+        if expr "$2" : ".*v1=on" &> /dev/null; then fracargs="$fracargs 1"; fi
+        if expr "$2" : ".*v2=on" &> /dev/null; then fracargs="$fracargs 2"; fi
+        if expr "$2" : ".*v3=on" &> /dev/null; then fracargs="$fracargs 3"; fi
+        if expr "$2" : ".*v4=on" &> /dev/null; then fracargs="$fracargs 4"; fi
+        if expr "$2" : ".*v5=on" &> /dev/null; then fracargs="$fracargs 5"; fi
+        if expr "$2" : ".*v6=on" &> /dev/null; then fracargs="$fracargs 6"; fi
+        if expr "$2" : ".*v7=on" &> /dev/null; then fracargs="$fracargs 7"; fi
+        if expr "$2" : ".*v8=on" &> /dev/null; then fracargs="$fracargs 8"; fi
+        if expr "$2" : ".*v9=on" &> /dev/null; then fracargs="$fracargs 9"; fi
+        if expr "$2" : ".*v10=on" &> /dev/null; then fracargs="$fracargs 10"; fi
+        if expr "$2" : ".*v11=on" &> /dev/null; then fracargs="$fracargs 11"; fi
+        if expr "$2" : ".*v12=on" &> /dev/null; then fracargs="$fracargs 12"; fi
+        if expr "$2" : ".*v13=on" &> /dev/null; then fracargs="$fracargs 13"; fi
+        if expr "$2" : ".*v14=on" &> /dev/null; then fracargs="$fracargs 14"; fi
+        if expr "$2" : ".*v15=on" &> /dev/null; then fracargs="$fracargs 15"; fi
+        if expr "$2" : ".*v16=on" &> /dev/null; then fracargs="$fracargs 16"; fi
+        if expr "$2" : ".*v17=on" &> /dev/null; then fracargs="$fracargs 17"; fi
+        if expr "$2" : ".*v18=on" &> /dev/null; then fracargs="$fracargs 18"; fi
+        if expr "$2" : ".*v19=on" &> /dev/null; then fracargs="$fracargs 19"; fi
+        if expr "$2" : ".*v20=on" &> /dev/null; then fracargs="$fracargs 20"; fi
+        if [ "$(wc -w <<<\"$fracargs\")" -lt 2 ]; then
+cat - <<END
+HTTP/1.0 200 OK
+Content-Length: 21
+Content-Type: text/plain
+
+Not enough variations
+END
+            return 0;
+        fi
+        ./fractal_gen $fracargs > /tmp/fractal$$.ppm;
+        convert /tmp/fractal$$.ppm /tmp/fractal$$.png;
+        size=$(wc -c /tmp/fractal$$.png);
+cat - /tmp/fractal$$.png <<END
+HTTP/1.0 200 OK
+Content-Length: $size
+Content-Type: image/png
+
+END
+        return 0
+    fi
+    size=$(stat -c %s "$file");
+    if [ "$?" == "0" ]; then
+        filetype=$(filetype "$file");
+        if grep "\.\." <<< "$file"; then
+
+cat - <<END
+HTTP/1.0 403 Forbidden
+Content-Length: 38
+
+error 403... wtf are you trying to do?
+END
+
+        return 0;
+
+    fi
+
+        if [ "$filetype" == "directory" ]; then
+            if test -a "$file/index.html"; then
+
+                contents=$(cat $file/index.html);
+                size=$(wc -m <<< "$contents");
+cat - <<END
+HTTP/1.0 200 OK
+Content-Length: $size
+Content-Type: text/html; charset=utf-8
+
+$contents
+END
+            else
+cat - <<END
+HTTP/1.0 404 Not Found
+Content-Length: 23
+Content-Type: text/plain
+
+nothing to see here <.<
+END
+            fi
+
+        else
+            read uselessinfo mime < <(file --mime-type "$file")
+            if [ "$mime" == "text/x-c" ] || [ "$mime" == "text/x-python" ]; then
+                mime="text/plain"
+            fi
+            typeheader="Content-Type: $mime"
+            if grep -q "^text" <<< "$mime"; then
+                typeheader="$typeheader; charset=utf8"
+            fi
+
+cat - "$file" <<END
+HTTP/1.0 200 OK
+Content-Length: $size
+$typeheader
+
+END
+        fi
+
+    else
+
+cat - <<END
+HTTP/1.0 404 Not Found
+Content-Length: 19
+
+idiot not found -_-
+END
+
+    fi
+}
+
+read meh fiel stuff
+args=$(grep -o '?.\+' <<< "$fiel");
+fiel=$(grep -o '^[^?]\+' <<< "$fiel" | sed 's/%20/\ /g');
+echo [`date`]: $SOCAT_PEERADDR accessed $fiel >> activity.log
+if ! grep -q "$SOCAT_PEERADDR" unique_ips.log; then
+    echo $SOCAT_PEERADDR >> unique_ips.log;
+fi
+respond "$fiel" "$args"
