@@ -1,2 +1,2 @@
 #!/bin/bash
-socat TCP4-LISTEN:2000,pktinfo,fork EXEC:/home/matthew/http/server
+socat TCP4-LISTEN:80,pktinfo,fork EXEC:/home/matthew/http/server

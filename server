@@ -19,6 +19,15 @@ respond() {
     file="$rootdir$1";
 
     if [ "$1" == "/generate" ]; then
+        width=$(expr "$2" : '.*width=\([0-9]*\)');
+        if [[ "$width" = *[\ \t\n]* ]] || [[ "$width" = "" ]]; then
+            width=1000;
+        fi
+        height=$(expr "$2" : '.*height=\([0-9]*\)');
+        if [[ "$height" = *[\ \t\n]* ]] || [[ "$height" = "" ]]; then
+            height=1000;
+        fi
+        echo $width $height >&2;
         fracargs="";
         if expr "$2" : ".*v1=on" &> /dev/null; then fracargs="$fracargs 0"; fi
         if expr "$2" : ".*v1=on" &> /dev/null; then fracargs="$fracargs 1"; fi
@@ -41,6 +50,7 @@ respond() {
         if expr "$2" : ".*v18=on" &> /dev/null; then fracargs="$fracargs 18"; fi
         if expr "$2" : ".*v19=on" &> /dev/null; then fracargs="$fracargs 19"; fi
         if expr "$2" : ".*v20=on" &> /dev/null; then fracargs="$fracargs 20"; fi
+        echo $fracargs >&2
         if [ "$(wc -w <<<\"$fracargs\")" -lt 2 ]; then
 cat - <<END
 HTTP/1.0 200 OK
@@ -51,15 +61,16 @@ Not enough variations
 END
             return 0;
         fi
-        ./fractal_gen $fracargs > /tmp/fractal$$.ppm;
+        ./fractal_gen -w $width -h $height $fracargs > /tmp/fractal$$.ppm;
         convert /tmp/fractal$$.ppm /tmp/fractal$$.png;
-        size=$(wc -c /tmp/fractal$$.png);
+        size=$(stat -c %s "/tmp/fractal$$.png");
 cat - /tmp/fractal$$.png <<END
 HTTP/1.0 200 OK
 Content-Length: $size
 Content-Type: image/png
 
 END
+        rm /tmp/fractal$$.{ppm,png}
         return 0
     fi
     size=$(stat -c %s "$file");
