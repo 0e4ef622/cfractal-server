@@ -145,6 +145,7 @@ read meh fiel stuff
 args=$(grep -o '?.\+' <<< "$fiel");
 fiel=$(grep -o '^[^?]\+' <<< "$fiel" | sed 's/%20/\ /g');
 echo [`date`]: $SOCAT_PEERADDR accessed $fiel >> activity.log
+touch unique_ips.log
 if ! grep -q "$SOCAT_PEERADDR" unique_ips.log; then
     echo $SOCAT_PEERADDR >> unique_ips.log;
 fi
