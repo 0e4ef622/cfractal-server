@@ -61,7 +61,8 @@ Not enough variations
 END
             return 0;
         fi
-        ./fractal_gen -w $width -h $height $fracargs > /tmp/fractal$$.ppm;
+        ./fractal_gen -w $width -h $height $fracargs
+        mv out000.ppm /tmp/fractal$$.ppm
         convert /tmp/fractal$$.ppm /tmp/fractal$$.png;
         size=$(stat -c %s "/tmp/fractal$$.png");
 cat - /tmp/fractal$$.png <<END
