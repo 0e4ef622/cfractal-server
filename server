@@ -61,7 +61,8 @@ Not enough variations
 END
             return 0;
         fi
-        ./fractal_gen -w $width -h $height $fracargs > /tmp/fractal$$.ppm;
+        ./fractal_gen -w $width -h $height $fracargs
+        mv out000.ppm /tmp/fractal$$.ppm
         convert /tmp/fractal$$.ppm /tmp/fractal$$.png;
         size=$(stat -c %s "/tmp/fractal$$.png");
 cat - /tmp/fractal$$.png <<END
@@ -145,6 +146,7 @@ read meh fiel stuff
 args=$(grep -o '?.\+' <<< "$fiel");
 fiel=$(grep -o '^[^?]\+' <<< "$fiel" | sed 's/%20/\ /g');
 echo [`date`]: $SOCAT_PEERADDR accessed $fiel >> activity.log
+touch unique_ips.log
 if ! grep -q "$SOCAT_PEERADDR" unique_ips.log; then
     echo $SOCAT_PEERADDR >> unique_ips.log;
 fi
