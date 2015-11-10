@@ -3,7 +3,7 @@ cfractal-server
 
 Before you run the server, compile cfractal
 
-    $ git clone https://github.com/KeyboardFire/cfractal
+    $ git submodule update
     $ cd cfractal
     $ make
 
