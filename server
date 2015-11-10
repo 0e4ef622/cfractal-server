@@ -29,7 +29,7 @@ respond() {
         fi
         echo $width $height >&2;
         fracargs="";
-        for i in {1..20}; do
+        for i in {1..22}; do
             if expr "$2" : ".*v$i=on" &> /dev/null; then fracargs="$fracargs $i"; fi
         done
         echo $fracargs >&2
