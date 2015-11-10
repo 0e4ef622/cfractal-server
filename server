@@ -61,18 +61,21 @@ Not enough variations
 END
             return 0;
         fi
-        ./fractal_gen -w $width -h $height $fracargs
-        mv out000.ppm /tmp/fractal$$.ppm
-        convert /tmp/fractal$$.ppm /tmp/fractal$$.png;
-        size=$(stat -c %s "/tmp/fractal$$.png");
-cat - /tmp/fractal$$.png <<END
+        wd=$(pwd);
+        mkdir /tmp/fractal$$;
+        cd /tmp/fractal$$;
+        ./fractal_gen -w $width -h $height $fracargs;
+        convert out000.ppm out000.png;
+        size=$(stat -c %s "out000.png");
+cat - out000.png <<END
 HTTP/1.0 200 OK
 Content-Length: $size
 Content-Type: image/png
 
 END
-        rm /tmp/fractal$$.{ppm,png}
-        return 0
+        cd $wd;
+        rm -r /tmp/fractal$$;
+        return 0;
     fi
     size=$(stat -c %s "$file");
     if [ "$?" == "0" ]; then
