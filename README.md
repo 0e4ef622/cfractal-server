@@ -3,7 +3,7 @@ cfractal-server
 
 Before you run the server, compile cfractal
 
-    $ git submodule update
+    $ git submodule init && git submodule update
     $ cd cfractal
     $ make
 
